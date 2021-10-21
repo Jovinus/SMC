@@ -26,6 +26,10 @@ result_col_to_merge = ['ID', '처방일', 'FLD_Degree_NM', 'FLD_Degree_CODE']
 # %%
 if __name__ == '__main__':
     df_source = pd.read_csv("../../data/fatty_liver/fattyliver_to_2016.csv", encoding='CP949')
+    df_source['year'] = pd.to_datetime(df_source['처방일']).dt.year
+    df_source_13 = df_source.query('year <= 2013')
+    
+    
     df_result = pd.read_csv("../../data/fatty_liver/RSLT_CD/SONO_RESULTS.csv")
     
     ## Rename Nessasary Column to English
@@ -38,7 +42,7 @@ if __name__ == '__main__':
     df_result_fl['FLD_Degree_NM'] = df_result_fl['RSLT_CODE'].map(map_rslt_code_to_degree)
     df_result_fl['FLD_Degree_CODE'] = df_result_fl['FLD_Degree_NM'].map(map_degree_to_code)
     
-    df_dataset = pd.merge(df_source[source_col_to_merge], 
+    df_dataset = pd.merge(df_source_13[source_col_to_merge], 
                           df_result_fl[result_col_to_merge], 
                           how='left', 
                           on=['ID', '처방일']).rename({'처방일':'SM_DATE'})
@@ -46,6 +50,6 @@ if __name__ == '__main__':
     df_dataset['FLD_Degree_NM'] = df_dataset['FLD_Degree_NM'].fillna('Absent')
     df_dataset['FLD_Degree_CODE'] = df_dataset['FLD_Degree_CODE'].fillna(1)
     
-    df_dataset.to_csv("../../data/fatty_liver/ABD_SONO_to_2016.csv", 
+    df_dataset.to_csv("../../data/fatty_liver/ABD_SONO_to_2013.csv", 
                       index=False, 
                       encoding='utf-8-sig')
